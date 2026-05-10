@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes App — Architecture</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+    header {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 20px 32px;
+    }
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+    header p {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+    nav {
+      display: flex;
+      gap: 4px;
+      padding: 16px 32px 0;
+      border-bottom: 1px solid #334155;
+      background: #1e293b;
+    }
+    nav button {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background: transparent;
+      color: #94a3b8;
+      transition: all 0.15s;
+    }
+    nav button.active {
+      background: #0f172a;
+      color: #38bdf8;
+      border-bottom: 2px solid #38bdf8;
+    }
+    nav button:hover:not(.active) {
+      color: #e2e8f0;
+    }
+    .tab-content {
+      display: none;
+      padding: 32px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .section {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #38bdf8;
+      margin-bottom: 6px;
+    }
+    .section p {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-bottom: 20px;
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+    .mermaid svg {
+      max-width: 100%;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #334155;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Notes App — Architecture</h1>
+    <p>React 19 + TypeScript + Vite · 컴포넌트 의존성 및 상태 흐름 시각화</p>
+  </header>
+
+  <nav>
+    <button class="active" onclick="showTab('deps')">컴포넌트 의존성</button>
+    <button onclick="showTab('state')">상태 흐름</button>
+    <button onclick="showTab('data')">데이터 시나리오</button>
+  </nav>
+
+  <!-- TAB 1: 컴포넌트 의존성 -->
+  <div id="tab-deps" class="tab-content active">
+    <div class="section">
+      <h2>컴포넌트 의존성 다이어그램</h2>
+      <p>파일 간 import 관계 — 화살표 방향이 의존 방향</p>
+      <div class="mermaid">
+graph TD
+    main["🚀 main.tsx<br/><small>진입점</small>"]
+    App["📦 App.tsx<br/><small>루트 컴포넌트</small>"]
+    NotesProvider["🗄️ NotesContext.tsx<br/><small>전역 상태 · useNotes hook</small>"]
+    note_type["📄 types/note.ts<br/><small>Note 인터페이스</small>"]
+    api["🌐 api/notes.ts<br/><small>fetch CRUD 함수</small>"]
+    Layout["🖼️ Layout.tsx<br/><small>레이아웃 래퍼</small>"]
+    NoteList["📋 NoteList.tsx<br/><small>노트 목록</small>"]
+    NoteItem["🗒️ NoteItem.tsx<br/><small>노트 아이템</small>"]
+    NoteEditor["✏️ NoteEditor.tsx<br/><small>노트 에디터</small>"]
+
+    main --> App
+    App --> NotesProvider
+    App --> Layout
+    App --> NoteList
+    App --> NoteEditor
+    NotesProvider --> note_type
+    NotesProvider --> api
+    api --> note_type
+    NoteList --> NotesProvider
+    NoteList --> NoteItem
+    NoteEditor --> NotesProvider
+    NoteItem --> note_type
+
+    classDef entry fill:#7c3aed,stroke:#a855f7,color:#fff
+    classDef root fill:#1d4ed8,stroke:#3b82f6,color:#fff
+    classDef context fill:#065f46,stroke:#10b981,color:#fff
+    classDef component fill:#1e3a5f,stroke:#38bdf8,color:#fff
+    classDef type fill:#44403c,stroke:#78716c,color:#ccc
+    classDef apilayer fill:#78350f,stroke:#f59e0b,color:#fff
+
+    class main entry
+    class App root
+    class NotesProvider context
+    class Layout,NoteList,NoteItem,NoteEditor component
+    class note_type type
+    class api apilayer
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>진입점</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div>루트</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#065f46"></div>Context / Hook</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1e3a5f"></div>컴포넌트</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#78350f"></div>API 레이어</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#44403c"></div>타입</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: 상태 흐름 -->
+  <div id="tab-state" class="tab-content">
+    <div class="section">
+      <h2>서버 데이터 상태 흐름</h2>
+      <p>Context가 API를 호출하고 notes 상태를 관리 — 컴포넌트는 useNotes() 훅으로 접근</p>
+      <div class="mermaid">
+flowchart LR
+    DB[("🗄️ db.json\nJSON Server\n:3001")]
+    API["📡 api/notes.ts\nfetchNotes\ncreateNote\nupdateNote\ndeleteNote"]
+    CTX["🔁 NotesContext\nnotes: Note[]\nloading: boolean\nerror: string|null"]
+    NL["📋 NoteList\nreads: notes[]\nloading, error\ncalls: deleteNote"]
+    NE["✏️ NoteEditor\nreads: notes[]\ncalls: createNote\ncalls: updateNote"]
+    NI["🗒️ NoteItem\nprops only\nno hook"]
+
+    DB <-->|REST| API
+    API -->|응답값으로 state 갱신| CTX
+    CTX -->|useNotes| NL
+    CTX -->|useNotes| NE
+    NL -->|props| NI
+
+    style DB fill:#064e3b,stroke:#10b981,color:#fff
+    style API fill:#78350f,stroke:#f59e0b,color:#fff
+    style CTX fill:#065f46,stroke:#10b981,color:#fff
+    style NL fill:#1e3a5f,stroke:#38bdf8,color:#fff
+    style NE fill:#1e3a5f,stroke:#38bdf8,color:#fff
+    style NI fill:#1e293b,stroke:#475569,color:#94a3b8
+      </div>
+    </div>
+    <div class="section">
+      <h2>UI 선택 상태 흐름</h2>
+      <p>App이 selectedNoteId · isCreating을 관리하고 props로 내려줌</p>
+      <div class="mermaid">
+flowchart TD
+    APP["📦 App.tsx\nselectedNoteId: string|null\nisCreating: boolean"]
+
+    EVT1["사용자: 노트 클릭"]
+    EVT2["사용자: + 새 노트"]
+    EVT3["사용자: 저장 완료"]
+
+    EVT1 -->|handleSelectNote| APP
+    EVT2 -->|handleNewNote| APP
+    EVT3 -->|handleDone| APP
+
+    APP -->|"selectedNoteId\nonSelect"| NL["📋 NoteList"]
+    APP -->|"selectedNoteId\nisCreating\nonDone"| NE["✏️ NoteEditor"]
+    NL -->|"isSelected\nonSelect\nonDelete"| NI["🗒️ NoteItem"]
+
+    style APP fill:#1d4ed8,stroke:#3b82f6,color:#fff
+    style EVT1 fill:#292524,stroke:#57534e,color:#a8a29e
+    style EVT2 fill:#292524,stroke:#57534e,color:#a8a29e
+    style EVT3 fill:#292524,stroke:#57534e,color:#a8a29e
+    style NL fill:#1e3a5f,stroke:#38bdf8,color:#fff
+    style NE fill:#1e3a5f,stroke:#38bdf8,color:#fff
+    style NI fill:#1e293b,stroke:#475569,color:#94a3b8
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: 데이터 시나리오 -->
+  <div id="tab-data" class="tab-content">
+    <div class="section">
+      <h2>시나리오 A — 노트 생성</h2>
+      <p>"+ 새 노트" 클릭 → 작성 → 저장까지의 전체 흐름</p>
+      <div class="mermaid">
+sequenceDiagram
+    actor U as 사용자
+    participant App
+    participant NE as NoteEditor
+    participant CTX as NotesContext
+    participant API as api/notes.ts
+    participant DB as JSON Server
+
+    U->>App: "+ 새 노트" 클릭
+    App->>NE: isCreating=true, selectedNoteId=null
+    U->>NE: 제목·내용 입력
+    U->>NE: "저장" 클릭
+    NE->>CTX: createNote(title, content)
+    CTX->>API: createNote({title, content})
+    API->>DB: POST /notes
+    DB-->>API: 201 Created + Note
+    API-->>CTX: newNote
+    CTX->>CTX: setNotes([...prev, newNote])
+    CTX-->>NE: notes 업데이트
+    NE->>App: onDone()
+    App->>App: isCreating=false
+      </div>
+    </div>
+    <div class="section">
+      <h2>시나리오 B — 노트 수정</h2>
+      <p>노트 선택 → 내용 변경 → 저장</p>
+      <div class="mermaid">
+sequenceDiagram
+    actor U as 사용자
+    participant NI as NoteItem
+    participant App
+    participant NE as NoteEditor
+    participant CTX as NotesContext
+    participant API as api/notes.ts
+    participant DB as JSON Server
+
+    U->>NI: 노트 클릭
+    NI->>App: onSelect(id)
+    App->>NE: selectedNoteId=id, isCreating=false
+    NE->>CTX: notes.find(n => n.id === id)
+    CTX-->>NE: selectedNote
+    NE->>NE: setTitle / setContent
+    U->>NE: 내용 수정 후 "저장"
+    NE->>CTX: updateNote(id, {title, content})
+    CTX->>API: updateNote(id, {...})
+    API->>DB: PATCH /notes/:id
+    DB-->>API: 200 OK + updated Note
+    API-->>CTX: updatedNote
+    CTX->>CTX: setNotes(prev.map(...))
+    NE->>App: onDone()
+      </div>
+    </div>
+    <div class="section">
+      <h2>시나리오 C — 노트 삭제</h2>
+      <p>삭제 버튼 클릭 → Context → API → 상태 갱신</p>
+      <div class="mermaid">
+sequenceDiagram
+    actor U as 사용자
+    participant NI as NoteItem
+    participant CTX as NotesContext
+    participant API as api/notes.ts
+    participant DB as JSON Server
+
+    U->>NI: "삭제" 버튼 클릭
+    NI->>CTX: deleteNote(id)
+    CTX->>API: deleteNote(id)
+    API->>DB: DELETE /notes/:id
+    DB-->>API: 200 OK
+    API-->>CTX: void
+    CTX->>CTX: setNotes(prev.filter(n => n.id !== id))
+      </div>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        background: '#1e293b',
+        primaryColor: '#1e3a5f',
+        primaryTextColor: '#e2e8f0',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#475569',
+        secondaryColor: '#065f46',
+        tertiaryColor: '#78350f',
+      }
+    });
+
+    function showTab(name) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>
