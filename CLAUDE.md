@@ -73,16 +73,16 @@ db.json (JSON Server)
 
 ### 네이밍 패턴
 
-| 대상 | 패턴 | 예시 |
-|------|------|------|
-| 컴포넌트 파일 | PascalCase | `NoteEditor.tsx` |
-| 컴포넌트 함수 | PascalCase | `NoteEditor` |
-| Props 인터페이스 | `{컴포넌트}Props` | `NoteEditorProps` |
-| 커스텀 훅 | `use` 접두사 | `useNotes` |
-| 이벤트 핸들러 prop | `on` 접두사 | `onSelect`, `onDelete`, `onDone` |
-| 이벤트 핸들러 구현 | `handle` 접두사 | `handleSave`, `handleNewNote` |
-| API 함수 | camelCase 동사+명사 | `fetchNotes`, `createNote`, `updateNote`, `deleteNote` |
-| Context 메서드 | API와 동일한 동사 | `createNote`, `updateNote`, `deleteNote` |
+| 대상               | 패턴                | 예시                                                   |
+| ------------------ | ------------------- | ------------------------------------------------------ |
+| 컴포넌트 파일      | PascalCase          | `NoteEditor.tsx`                                       |
+| 컴포넌트 함수      | PascalCase          | `NoteEditor`                                           |
+| Props 인터페이스   | `{컴포넌트}Props`   | `NoteEditorProps`                                      |
+| 커스텀 훅          | `use` 접두사        | `useNotes`                                             |
+| 이벤트 핸들러 prop | `on` 접두사         | `onSelect`, `onDelete`, `onDone`                       |
+| 이벤트 핸들러 구현 | `handle` 접두사     | `handleSave`, `handleNewNote`                          |
+| API 함수           | camelCase 동사+명사 | `fetchNotes`, `createNote`, `updateNote`, `deleteNote` |
+| Context 메서드     | API와 동일한 동사   | `createNote`, `updateNote`, `deleteNote`               |
 
 > **일관성 없는 패턴 주의**
 >
@@ -98,6 +98,7 @@ db.json (JSON Server)
 
 - Tailwind CSS v4 (Vite 플러그인 방식, `tailwind.config` 파일 없음)
 - Prettier: `.prettierrc` 기준 자동 포맷
+- **모든 스타일 작업은 `docs/design-system/`(N. Encar Design System Ver. 2.0)을 단일 출처로 참고한다.** 진입점은 [`docs/design-system/README.md`](./docs/design-system/README.md), 카탈로그는 [`docs/design-system/INDEX.md`](./docs/design-system/INDEX.md). 토큰은 [`foundations/`](./docs/design-system/foundations/), 규칙은 [`guidelines/`](./docs/design-system/guidelines/), 컴포넌트 스펙은 [`components/`](./docs/design-system/components/)에 있다. 토큰에 없는 raw hex/px, Tailwind 임의값 클래스(`bg-[#fff]` 등) 추가 금지. 새 값이 필요하면 `foundations/<category>.md`에 토큰을 먼저 추가하고 `foundations/tailwind-mapping.md`도 함께 갱신한다. 디자인 시스템 작업 시 `design-system` 스킬과 `/ds-add-token`·`/ds-verify`·`/ds-new-component` 슬래시 명령을 활용한다.
 
 ## 향후 추가 예정 (강의 진행 중)
 
